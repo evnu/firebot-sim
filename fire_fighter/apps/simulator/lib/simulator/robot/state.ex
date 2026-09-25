@@ -27,11 +27,11 @@ defmodule Simulator.Robot.State do
   end
 
   def discharge(state = %__MODULE__{}) do
-    %{state | soc: state.soc - 0.5}
+    %{state | soc: max(0, state.soc - 0.5)}
   end
 
   def charge(state = %__MODULE__{}) do
-    %{state | soc: state.soc + 1}
+    %{state | soc: min(100, state.soc + 1)}
   end
 
   def discharged(state = %__MODULE__{}) do

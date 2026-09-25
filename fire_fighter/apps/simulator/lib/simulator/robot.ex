@@ -54,7 +54,7 @@ defmodule Simulator.Robot do
   end
 
   def handle_call({:call_for, timestamp, fire = %Fire{}}, _, state = %State{}) do
-    IO.puts("#{timestamp} #{__MODULE__} (#{inspect(self())}) called to respond to a fire")
+    report(timestamp, state, "called to respond to fire #{inspect(fire.coordinates)}")
 
     events = [
       {timestamp + 1, {self(), :move_to, fire.coordinates}}
@@ -77,13 +77,13 @@ defmodule Simulator.Robot do
         {:reply, {:events, events},
          state |> State.one_step_to(target_coordinates) |> State.discharge()}
       else
-        IO.puts("#{timestamp} #{__MODULE__} (#{inspect(self())}) is out of juice")
+        report(timestamp, state, "is out of juice")
         {:reply, {:events, []}, State.discharged(state)}
       end
     else
       cond do
         state.coordinates == state.firestation_coordinates ->
-          IO.puts("#{timestamp} #{__MODULE__} (#{inspect(self())}) arrived at fire station")
+          report(timestamp, state, "arrived at fire station")
 
           events = [
             {timestamp + 1, {self(), :waiting, []}}
@@ -92,9 +92,10 @@ defmodule Simulator.Robot do
           {:reply, {:events, events}, %{state | action: :waiting}}
 
         fire = Grid.fire(target_coordinates) ->
-          IO.puts("#{timestamp} #{__MODULE__} (#{inspect(self())}) arrived at fire")
+          report(timestamp, state, "arrived at fire")
 
           events = [
+            {timestamp + 1, {self(), :extinguishing, target_coordinates}},
             {timestamp + fire.extinguished_within, {self(), :extinguished, target_coordinates}}
           ]
 
@@ -113,7 +114,7 @@ defmodule Simulator.Robot do
         _,
         state = %State{action: {:move_to, coordinates}}
       ) do
-    IO.puts("#{timestamp} #{__MODULE__} recalled from responding to #{inspect(coordinates)}")
+    report(timestamp, state, "recalled from responding to #{inspect(coordinates)}")
 
     events = [
       {timestamp + 1, {self(), :move_to, state.firestation_coordinates}}
@@ -127,12 +128,38 @@ defmodule Simulator.Robot do
     {:reply, {:events, []}, state}
   end
 
-  def handle_call({:waiting, timestamp, []}, _, state = %State{}) do
+  # Only charge if we are at the firestation
+  def handle_call(
+        {:waiting, timestamp, []},
+        _,
+        state = %State{coordinates: c, firestation_coordinates: c}
+      ) do
     events = [
       {timestamp + 1, {self(), :waiting, []}}
     ]
 
     {:reply, {:events, events}, State.charge(state)}
+  end
+
+  def handle_call({:waiting, _timestamp, []}, _, state = %State{}) do
+    {:reply, {:events, []}, state}
+  end
+
+  def handle_call(
+        {:extinguishing, timestamp, coordinates},
+        _,
+        state = %State{action: {:extinguishing, coordinates}}
+      ) do
+    events =
+      [
+        {timestamp + 1, {self(), :extinguishing, coordinates}}
+      ]
+
+    {:reply, {:events, events}, State.discharge(state)}
+  end
+
+  def handle_call({:extinguishing, _, _}, _, state = %State{}) do
+    {:reply, {:events, []}, state}
   end
 
   def handle_call(
@@ -142,7 +169,7 @@ defmodule Simulator.Robot do
       ) do
     events =
       if fire = Grid.fire(coordinates) do
-        IO.puts("#{timestamp} #{__MODULE__} (#{inspect(self())}) extinguished a fire")
+        report(timestamp, state, "extinguished a fire")
         :ok = Grid.extinguished(fire)
 
         [
@@ -158,5 +185,11 @@ defmodule Simulator.Robot do
 
   def handle_call({:extinguished, _timestamp, _coordinates}, _, state = %State{}) do
     {:reply, {:events, []}, state}
+  end
+
+  defp report(timestamp, state, message) do
+    IO.puts(
+      "#{timestamp} #{__MODULE__} (#{inspect(self())}, #{inspect(state.coordinates)}, #{state.soc}%) #{message}"
+    )
   end
 end

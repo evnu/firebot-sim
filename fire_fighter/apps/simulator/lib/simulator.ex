@@ -20,6 +20,6 @@ defmodule Simulator do
     {:ok, _} = Supervisor.start_link(children, opts)
 
     IO.puts("Starting simulation")
-    :ok = Simulator.DES.run_simulation(5000)
+    :ok = Simulator.DES.run_simulation(10000)
   end
 end
