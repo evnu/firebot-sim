@@ -12,7 +12,8 @@ defmodule Simulator do
       {Simulator.Grid, [size: {50, 50}]},
       Simulator.Firebug,
       {Simulator.FireStation, [firestation_coordinates]},
-      Simulator.Robot
+      Supervisor.child_spec(Simulator.Robot, id: :robot1),
+      Supervisor.child_spec(Simulator.Robot, id: :robot2),
     ]
 
     # We tear down everything on failure.
