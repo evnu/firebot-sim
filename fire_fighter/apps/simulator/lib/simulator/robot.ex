@@ -5,6 +5,7 @@ defmodule Simulator.Robot do
   alias Simulator.FireStation
   alias Simulator.Grid
   alias Simulator.Robot.State
+  alias Simulator.Reporter
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args)
@@ -187,9 +188,7 @@ defmodule Simulator.Robot do
     {:reply, {:events, []}, state}
   end
 
-  defp report(timestamp, state, message) do
-    IO.puts(
-      "#{timestamp} #{__MODULE__} (#{inspect(self())}, #{inspect(state.coordinates)}, #{state.soc}%) #{message}"
-    )
+  defp report(timestamp, _state, message) do
+    Reporter.report(timestamp, "#{__MODULE__}(#{inspect(self())})", message)
   end
 end

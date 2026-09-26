@@ -3,6 +3,7 @@ defmodule Simulator.FireStation do
 
   alias Simulator.Robot
   alias Simulator.Fire
+  alias Simulator.Reporter
 
   defmodule State do
     @moduledoc """
@@ -58,7 +59,7 @@ defmodule Simulator.FireStation do
   end
 
   def handle_call({:fire_detected, timestamp, [fire = %Fire{}]}, _, state) do
-    IO.puts("#{timestamp} #{__MODULE__} was informed of a fire at #{inspect(fire.coordinates)}")
+    Reporter.report(timestamp, __MODULE__, "informed of a fire at #{inspect(fire.coordinates)}")
 
     robots_to_send =
       state.robots
@@ -70,7 +71,7 @@ defmodule Simulator.FireStation do
     # We only send robots if we have a chance of winning.
     events =
       if length(robots_to_send) >= fire.required_fire_fighters do
-        IO.puts("#{timestamp} #{__MODULE__} sends robots")
+        Reporter.report(timestamp, __MODULE__, "sends robots")
 
         for robot <- robots_to_send do
           {:events, events} = Robot.call_for(robot, timestamp, fire)
@@ -78,7 +79,7 @@ defmodule Simulator.FireStation do
         end
         |> List.flatten()
       else
-        IO.puts("#{timestamp} #{__MODULE__} cannot send robots")
+        Reporter.report(timestamp, __MODULE__, "cannot send robots")
         []
       end
 
@@ -86,7 +87,7 @@ defmodule Simulator.FireStation do
   end
 
   def handle_call({:recall_from_location, timestamp, coordinates}, _, state) do
-    IO.puts("#{timestamp} #{__MODULE__} recalls units from #{inspect(coordinates)}")
+    Reporter.report(timestamp, __MODULE__, "recalls units from #{inspect(coordinates)}")
 
     events =
       Enum.flat_map(state.robots, fn robot ->

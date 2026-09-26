@@ -9,6 +9,7 @@ defmodule Simulator.DES do
   alias Simulator.Grid
   alias Simulator.FireStation
   alias Simulator.Firebug
+  alias Simulator.SecondsCounter
 
   alias Simulator.DES.State
 
@@ -16,8 +17,8 @@ defmodule Simulator.DES do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  def run_simulation(run_until) do
-    GenServer.call(Simulator.DES, {:run_simulation, run_until})
+  def run_simulation(run_until, real_time \\ false) do
+    GenServer.call(Simulator.DES, {:run_simulation, [run_until: run_until, real_time: real_time]})
   end
 
   @impl true
@@ -26,21 +27,29 @@ defmodule Simulator.DES do
   end
 
   @impl true
-  def handle_call({:run_simulation, run_until}, reply_to, nil) do
-    {:noreply, nil, {:continue, {:init_simulation, reply_to, run_until}}}
+  def handle_call({:run_simulation, args}, reply_to, nil) do
+    {:noreply, nil, {:continue, {:init_simulation, reply_to, args}}}
   end
 
   @impl true
-  def handle_continue({:init_simulation, reply_to, run_until}, _state) do
+  def handle_continue({:init_simulation, reply_to, args}, _state) do
     :ok = Grid.reset()
     :ok = FireStation.reset()
     :ok = Firebug.reset()
 
     initial_timestamp = 0
-    schedule = %{initial_timestamp => [{Firebug, :schedule_first_fire, []}]}
+    schedule = %{initial_timestamp => [
+      {Firebug, :schedule_first_fire, []},
+      {SecondsCounter, :one_second_passed, []}
+    ]}
 
     :finished =
-      simulate(%State{timestamp: initial_timestamp, schedule: schedule, run_until: run_until})
+      simulate(%State{
+        timestamp: initial_timestamp,
+        schedule: schedule,
+        run_until: args[:run_until] || :infinity,
+        real_time: args[:real_time] || false
+      })
 
     :ok = GenServer.reply(reply_to, :ok)
 
@@ -49,11 +58,21 @@ defmodule Simulator.DES do
 
   # The main simulation runner.
   defp simulate(state) do
+    t0 = DateTime.utc_now()
     events = State.events(state)
 
     with {:ok, state} <-
            state |> State.merge_events(step(events, state.timestamp)) |> State.step(),
          :continue <- check_continue(state) do
+      if state.real_time do
+        t1 = DateTime.utc_now()
+        diff_ms = DateTime.diff(t1, t0, :millisecond)
+
+        if diff_ms < 1000 do
+          :timer.sleep(1000 - diff_ms)
+        end
+      end
+
       simulate(state)
     end
   end

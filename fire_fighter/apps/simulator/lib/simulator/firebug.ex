@@ -4,6 +4,7 @@ defmodule Simulator.Firebug do
 
   alias Simulator.Grid
   alias Simulator.Fire
+  alias Simulator.Reporter
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -25,12 +26,18 @@ defmodule Simulator.Firebug do
 
   def handle_call({:schedule_first_fire, timestamp, []}, _, state) do
     first_fire_timestamp = pick_next_fire(timestamp)
-    IO.puts("#{timestamp} #{__MODULE__} Scheduling first fire to be at #{first_fire_timestamp}")
+
+    Reporter.report(
+      timestamp,
+      __MODULE__,
+      "Scheduling first fire to be at #{first_fire_timestamp}"
+    )
+
     {:reply, {:events, [{first_fire_timestamp, {__MODULE__, :fire, []}}]}, state}
   end
 
   def handle_call({:fire, timestamp, []}, _, state) do
-    IO.puts("#{timestamp} #{__MODULE__} starts fire")
+    Reporter.report(timestamp, __MODULE__, "starts fire")
 
     fire = random_fire(state, timestamp)
 

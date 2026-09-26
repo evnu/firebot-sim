@@ -35,21 +35,56 @@ defmodule Ui.Router do
     html_content = """
     <!DOCTYPE html>
     <html>
-      <head><title>Elixir Stream</title></head>
+      <head><title>Fleet Overview</title></head>
       <body>
-        <h1>Live Stream from Elixir</h1>
-        <div id="log" style="font-family: monospace; background: #f4f4f4; padding: 10px;">Connecting...</div>
+        <h1>Fleet Overview</h1>
+        <button id="start">Start Simulation</button>
+        <div id="log">Connecting...</div>
+
+        <h3>Message Log</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Sender</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody id="eventsTable">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
+        </table>
 
         <script>
           const logDiv = document.getElementById('log');
+          const eventsTable = document.getElementById('eventsTable');
+          const startBtn = document.getElementById('start');
           const ws = new WebSocket("ws://localhost:4000/socket");
 
           ws.onmessage = function(event) {
-            logDiv.innerHTML += "<br>" + event.data;
+            try {
+              const data = JSON.parse(event.data);
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td>${data.timestamp}</td>
+                <td><strong>${data.sender}</strong></td>
+                <td>${data.message}</td>
+              `;
+              eventsTable.appendChild(row);
+            } catch(e) {
+              console.log(e)
+              logDiv.innerHTML += "<br>" + event.data;
+            }
           };
 
           ws.onopen = function() {
             logDiv.innerHTML = "Connected to Elixir WebSocket!";
+          };
+
+          startBtn.onclick = () => {
+            eventsTable.innerHTML = '';
+            log.innerHTML = '';
+            ws.send("startSimulation");
           };
         </script>
       </body>

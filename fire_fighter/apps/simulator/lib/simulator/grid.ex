@@ -3,6 +3,7 @@ defmodule Simulator.Grid do
 
   alias Simulator.Fire
   alias Simulator.FireStation
+  alias Simulator.Reporter
 
   defmodule State do
     alias Simulator.Fire
@@ -88,7 +89,7 @@ defmodule Simulator.Grid do
   end
 
   def handle_call({:mark_fire, timestamp, [fire = %Fire{}]}, _, state) do
-    IO.puts("#{timestamp} #{__MODULE__} marks fire at #{inspect(fire.coordinates)}")
+    Reporter.report(timestamp, __MODULE__, "marks fire at #{inspect(fire.coordinates)}")
 
     events = [
       {fire.burns_until, {__MODULE__, :fire_lost, [fire]}}
@@ -98,7 +99,11 @@ defmodule Simulator.Grid do
   end
 
   def handle_call({:fire_lost, timestamp, [fire]}, _, state) do
-    IO.puts("#{timestamp} #{__MODULE__} marks this as a lost cause #{inspect(fire.coordinates)}")
+    Reporter.report(
+      timestamp,
+      __MODULE__,
+      "marks this as a lost cause #{inspect(fire.coordinates)}"
+    )
 
     events = [
       {timestamp + 1, {FireStation, :recall_from_location, fire.coordinates}}

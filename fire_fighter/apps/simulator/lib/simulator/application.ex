@@ -11,6 +11,7 @@ defmodule Simulator.Application do
       [
         # The discrete event simulation has to be started first, as all others refer to it by name
         Simulator.DES,
+        Simulator.SecondsCounter,
         {Simulator.Grid, [size: config.grid_size]},
         Simulator.Firebug,
         {Simulator.FireStation, [config.firestation_coordinates]}
