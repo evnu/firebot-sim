@@ -9,7 +9,6 @@ defmodule Simulator.DES do
   alias Simulator.Grid
   alias Simulator.FireStation
   alias Simulator.Firebug
-  alias Simulator.SecondsCounter
 
   alias Simulator.DES.State
 
@@ -38,16 +37,18 @@ defmodule Simulator.DES do
     :ok = Firebug.reset()
 
     initial_timestamp = 0
-    schedule = %{initial_timestamp => [
-      {Firebug, :schedule_first_fire, []},
-      {SecondsCounter, :one_second_passed, []}
-    ]}
+
+    schedule = %{
+      initial_timestamp => [
+        {Firebug, :schedule_first_fire, []}
+      ]
+    }
 
     :finished =
       simulate(%State{
         timestamp: initial_timestamp,
         schedule: schedule,
-        run_until: args[:run_until] || :infinity,
+        run_until: args[:run_until] || :infinity
       })
 
     :ok = GenServer.reply(reply_to, :ok)
