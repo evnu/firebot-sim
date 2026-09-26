@@ -35,9 +35,9 @@ defmodule Ui.Router do
     html_content = """
     <!DOCTYPE html>
     <html>
-      <head><title>Fleet Overview</title></head>
+      <head><title>Simulation Runner</title></head>
       <body>
-        <h1>Fleet Overview</h1>
+        <h1>Run a Simulation</h1>
         <button id="start">Start Simulation</button>
         <div id="log">Connecting...</div>
 
