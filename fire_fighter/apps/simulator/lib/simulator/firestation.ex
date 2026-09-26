@@ -63,7 +63,8 @@ defmodule Simulator.FireStation do
     robots_to_send =
       state.robots
       |> Enum.filter(&Robot.available?/1)
-      |> Enum.shuffle() # Some randomness! :)
+      # Some randomness! :)
+      |> Enum.shuffle()
       |> Enum.take(fire.required_fire_fighters)
 
     # We only send robots if we have a chance of winning.

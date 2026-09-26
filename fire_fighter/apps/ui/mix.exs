@@ -27,6 +27,7 @@ defmodule Ui.MixProject do
   defp deps do
     [
       {:plug_cowboy, "~> 2.9"},
+      {:simulator, in_umbrella: true}
     ]
   end
 end
