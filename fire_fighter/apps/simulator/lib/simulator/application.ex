@@ -1,9 +1,10 @@
-defmodule Simulator do
-  @moduledoc """
-  Fire-fighting simulation command line interface.
-  """
+defmodule Simulator.Application do
+  @moduledoc false
 
-  def run do
+  use Application
+
+  @impl true
+  def start(_type, _args) do
     firestation_coordinates = {10, 10}
 
     children = [
@@ -19,8 +20,5 @@ defmodule Simulator do
     # We tear down everything on failure.
     opts = [strategy: :one_for_all, name: Simulator.Supervisor]
     {:ok, _} = Supervisor.start_link(children, opts)
-
-    IO.puts("Starting simulation")
-    :ok = Simulator.DES.run_simulation(10000)
   end
 end
