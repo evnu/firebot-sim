@@ -2,7 +2,7 @@ defmodule Simulator.DES.State do
   # A schedule is a map from timestamps to events, where an event is a tuple {actor, function, args}.
   # The args do not include the timestamp: the timestamp is passed explicitly
 
-  defstruct run_until: :infinity, schedule: %{}, timestamp: 0, real_time: false
+  defstruct run_until: :infinity, schedule: %{}, timestamp: 0
 
   @doc """
   Get list of current events.

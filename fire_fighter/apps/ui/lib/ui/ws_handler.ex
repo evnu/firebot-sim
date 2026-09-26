@@ -22,7 +22,7 @@ defmodule Ui.WsHandler do
   @impl true
   def websocket_handle({:text, "startSimulation"}, state) do
     now = DateTime.utc_now()
-    Simulator.DES.run_simulation(5000, false)
+    Simulator.DES.run_simulation(5000)
     {[{:text, "Starting simulation at #{now}"}], state}
   end
 end

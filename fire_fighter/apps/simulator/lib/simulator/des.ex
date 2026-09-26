@@ -17,8 +17,8 @@ defmodule Simulator.DES do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  def run_simulation(run_until, real_time \\ false) do
-    GenServer.call(Simulator.DES, {:run_simulation, [run_until: run_until, real_time: real_time]})
+  def run_simulation(run_until) do
+    GenServer.call(Simulator.DES, {:run_simulation, [run_until: run_until]})
   end
 
   @impl true
@@ -48,7 +48,6 @@ defmodule Simulator.DES do
         timestamp: initial_timestamp,
         schedule: schedule,
         run_until: args[:run_until] || :infinity,
-        real_time: args[:real_time] || false
       })
 
     :ok = GenServer.reply(reply_to, :ok)
@@ -58,21 +57,11 @@ defmodule Simulator.DES do
 
   # The main simulation runner.
   defp simulate(state) do
-    t0 = DateTime.utc_now()
     events = State.events(state)
 
     with {:ok, state} <-
            state |> State.merge_events(step(events, state.timestamp)) |> State.step(),
          :continue <- check_continue(state) do
-      if state.real_time do
-        t1 = DateTime.utc_now()
-        diff_ms = DateTime.diff(t1, t0, :millisecond)
-
-        if diff_ms < 1000 do
-          :timer.sleep(1000 - diff_ms)
-        end
-      end
-
       simulate(state)
     end
   end
