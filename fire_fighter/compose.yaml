@@ -1,0 +1,8 @@
+services:
+  db:
+    image: postgres:18
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: fire
+      POSTGRES_PASSWORD: fire
