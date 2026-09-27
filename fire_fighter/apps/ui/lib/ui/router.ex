@@ -130,21 +130,21 @@ defmodule Ui.Router do
       <head><title>Simulation Replay</title></head>
       <body>
         <h1>Replay Simulation #{id}</h1>
-        <div style="display: flex; height: 300px" id="robotTelemetry">
-            <table>
-                <thead>
-                  <tr>
-                      <th>Robot ID</th>
-                      <th>SoC</th>
-                      <th>Coordinate X</th>
-                      <th>Coordinate Y</th>
-                      <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody id='telemetry'>
-                </tbody>
-            </table>
+        <table>
+            <thead>
+              <tr>
+                  <th>Robot ID</th>
+                  <th>SoC</th>
+                  <th>Coordinate X</th>
+                  <th>Coordinate Y</th>
+                  <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id='telemetry'>
+            </tbody>
+        </table>
             
+        <div style="display: flex; height: 300px" id="robotTelemetry; margin-top: 10px">
             <div id="log" style="flex: 1; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
             Connecting...
             </div>
