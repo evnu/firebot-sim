@@ -6,6 +6,7 @@ defmodule Simulator.Robot.State do
 
   * `:firestation_coordinates` are the stored coordinates of the fire station that the robot belongs to.
   * `:coordinates` are the robots current coordinates
+  * `:simulation` is the `Replay.Simulation` to mark telemetry with.
   * `:action` defines what the robot is currently doing. It can be
     * `:waiting`
     * `{:move_to, coordinates}` when it moves somewhere
@@ -14,10 +15,10 @@ defmodule Simulator.Robot.State do
   """
   @enforce_keys [:firestation_coordinates, :coordinates]
 
-  defstruct [:firestation_coordinates, :coordinates, action: :waiting, soc: 100]
+  defstruct [:firestation_coordinates, :coordinates, :simulation, action: :waiting, soc: 100]
 
-  def reset(state = %__MODULE__{}) do
-    state
+  def reset(state = %__MODULE__{}, simulation = %Replay.Simulation{}) do
+    %{state | simulation: simulation}
   end
 
   def available?(state = %__MODULE__{}) do

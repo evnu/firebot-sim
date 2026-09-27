@@ -11,8 +11,8 @@ defmodule Simulator.Robot do
     GenServer.start_link(__MODULE__, args)
   end
 
-  def reset(pid) do
-    GenServer.call(pid, :reset)
+  def reset(pid, simulation = %Replay.Simulation{}) do
+    GenServer.call(pid, {:reset, simulation})
   end
 
   @doc """
@@ -46,8 +46,8 @@ defmodule Simulator.Robot do
   end
 
   @impl true
-  def handle_call(:reset, _, state = %State{}) do
-    {:reply, :ok, State.reset(state)}
+  def handle_call({:reset, simulation}, _, state = %State{}) do
+    {:reply, :ok, State.reset(state, simulation)}
   end
 
   def handle_call(:available?, _, state = %State{}) do
@@ -55,6 +55,7 @@ defmodule Simulator.Robot do
   end
 
   def handle_call({:call_for, timestamp, fire = %Fire{}}, _, state = %State{}) do
+    telemetry(timestamp, state)
     report(timestamp, state, "called to respond to fire #{inspect(fire.coordinates)}")
 
     events = [
@@ -69,6 +70,8 @@ defmodule Simulator.Robot do
         _,
         state = %State{action: {:move_to, target_coordinates}}
       ) do
+    telemetry(timestamp, state)
+
     if state.coordinates != target_coordinates do
       if state.soc > 0 do
         events = [
@@ -115,6 +118,7 @@ defmodule Simulator.Robot do
         _,
         state = %State{action: {:move_to, coordinates}}
       ) do
+    telemetry(timestamp, state)
     report(timestamp, state, "recalled from responding to #{inspect(coordinates)}")
 
     events = [
@@ -135,6 +139,8 @@ defmodule Simulator.Robot do
         _,
         state = %State{coordinates: c, firestation_coordinates: c}
       ) do
+    telemetry(timestamp, state)
+
     events = [
       {timestamp + 1, {self(), :waiting, []}}
     ]
@@ -151,6 +157,8 @@ defmodule Simulator.Robot do
         _,
         state = %State{action: {:extinguishing, coordinates}}
       ) do
+    telemetry(timestamp, state)
+
     events =
       [
         {timestamp + 1, {self(), :extinguishing, coordinates}}
@@ -168,6 +176,8 @@ defmodule Simulator.Robot do
         _,
         state = %State{action: {:extinguishing, coordinates}}
       ) do
+    telemetry(timestamp, state)
+
     events =
       if fire = Grid.fire(coordinates) do
         report(timestamp, state, "extinguished a fire")
@@ -191,4 +201,22 @@ defmodule Simulator.Robot do
   defp report(timestamp, _state, message) do
     Reporter.report(timestamp, "#{__MODULE__}(#{inspect(self())})", message)
   end
+
+  defp telemetry(timestamp, state) do
+    {:registered_name, name} = Process.info(self(), :registered_name)
+    {coordinate_x, coordinate_y} = state.coordinates
+
+    Replay.robot_telemetry(%{
+      timestamp: timestamp,
+      robot_id: to_string(name),
+      soc: state.soc,
+      coordinate_x: coordinate_x,
+      coordinate_y: coordinate_y,
+      action: to_string(action_telemetry(state.action)),
+      simulation_id: state.simulation.id
+    })
+  end
+
+  defp action_telemetry({action, _}), do: action
+  defp action_telemetry(action) when is_atom(action), do: action
 end

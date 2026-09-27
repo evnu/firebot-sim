@@ -1,5 +1,7 @@
 import Config
 
+config :logger, level: :info
+
 config :replay, Replay.Repo,
   database: "replay",
   username: "fire",

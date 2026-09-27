@@ -5,6 +5,8 @@ defmodule Simulator.FireStation do
   alias Simulator.Fire
   alias Simulator.Reporter
 
+  alias Replay.Simulation
+
   defmodule State do
     @moduledoc """
     State of the fire station.
@@ -29,8 +31,11 @@ defmodule Simulator.FireStation do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  def reset do
-    GenServer.call(__MODULE__, :reset)
+  @doc """
+  Reset the fire station to its original state and set a `simulation`.
+  """
+  def reset(simulation = %Simulation{}) do
+    GenServer.call(__MODULE__, {:reset, simulation})
   end
 
   @doc """
@@ -50,9 +55,9 @@ defmodule Simulator.FireStation do
     {:reply, {:ok, state.coordinates}, State.add_robot(state, pid)}
   end
 
-  def handle_call(:reset, _, state = %State{}) do
+  def handle_call({:reset, simulation}, _, state = %State{}) do
     for robot <- state.robots do
-      :ok = Robot.reset(robot)
+      :ok = Robot.reset(robot, simulation)
     end
 
     {:reply, :ok, State.reset(state)}

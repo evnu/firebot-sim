@@ -6,18 +6,22 @@ defmodule Simulator.DES do
   """
   use GenServer
 
+  alias Simulator.DES.State
   alias Simulator.Grid
   alias Simulator.FireStation
   alias Simulator.Firebug
-
-  alias Simulator.DES.State
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   def run_simulation(run_until) do
-    GenServer.call(Simulator.DES, {:run_simulation, [run_until: run_until]})
+    {:ok, simulation} = Replay.create_simulation()
+
+    GenServer.call(
+      Simulator.DES,
+      {:run_simulation, [run_until: run_until, simulation: simulation]}
+    )
   end
 
   @impl true
@@ -33,7 +37,7 @@ defmodule Simulator.DES do
   @impl true
   def handle_continue({:init_simulation, reply_to, args}, _state) do
     :ok = Grid.reset()
-    :ok = FireStation.reset()
+    :ok = FireStation.reset(args[:simulation])
     :ok = Firebug.reset()
 
     initial_timestamp = 0
@@ -44,14 +48,17 @@ defmodule Simulator.DES do
       ]
     }
 
+    simulation = args[:simulation]
+
     :finished =
       simulate(%State{
         timestamp: initial_timestamp,
         schedule: schedule,
-        run_until: args[:run_until] || :infinity
+        run_until: args[:run_until] || :infinity,
+        simulation: simulation
       })
 
-    :ok = GenServer.reply(reply_to, :ok)
+    :ok = GenServer.reply(reply_to, {:finished, simulation.id})
 
     {:noreply, nil}
   end

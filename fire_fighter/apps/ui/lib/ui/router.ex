@@ -84,7 +84,7 @@ defmodule Ui.Router do
           startBtn.onclick = () => {
             eventsTable.innerHTML = '';
             log.innerHTML = '';
-            ws.send("startSimulation");
+            ws.send("runSimulation");
           };
         </script>
       </body>

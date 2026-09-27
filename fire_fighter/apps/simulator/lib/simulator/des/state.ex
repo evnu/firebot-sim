@@ -1,8 +1,18 @@
 defmodule Simulator.DES.State do
-  # A schedule is a map from timestamps to events, where an event is a tuple {actor, function, args}.
-  # The args do not include the timestamp: the timestamp is passed explicitly
+  @moduledoc """
+  The state of the discrete event simulation coordinator.
 
-  defstruct run_until: :infinity, schedule: %{}, timestamp: 0
+  ## Fields
+
+  * `:run_until` defines for how many simulated seconds the simulation runs at maximum. Defaults to `:infinity`.
+  * `:schedule` is the discrete event simulation schedule, which holds future events by timestamp.
+  * `:timestamp` is the current time.
+  * `:simulation` is the simulation object from the `Replay` application. This is used to mark telemetry sent to `Replay`.
+  """
+
+  @enforce_keys [:simulation]
+
+  defstruct run_until: :infinity, schedule: %{}, timestamp: 0, simulation: nil
 
   @doc """
   Get list of current events.
