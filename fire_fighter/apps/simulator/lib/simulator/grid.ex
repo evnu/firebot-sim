@@ -40,6 +40,13 @@ defmodule Simulator.Grid do
     def get_fire(state = %__MODULE__{}, coordinates) do
       state.fires[coordinates]
     end
+
+    @doc """
+    Determine if a fire is currently still active.
+    """
+    def fire_active?(state = %__MODULE__{}, fire = %Fire{}) do
+      !is_nil(get_fire(state, fire.coordinates))
+    end
   end
 
   def start_link(args) do
@@ -98,18 +105,22 @@ defmodule Simulator.Grid do
     {:reply, {:events, events}, State.add_fire(state, fire)}
   end
 
-  def handle_call({:fire_lost, timestamp, [fire]}, _, state) do
-    Reporter.report(
-      timestamp,
-      __MODULE__,
-      "marks this as a lost cause #{inspect(fire.coordinates)}"
-    )
+  def handle_call({:fire_lost, timestamp, [fire]}, _, state = %State{}) do
+    if State.fire_active?(state, fire) do
+      Reporter.report(
+        timestamp,
+        __MODULE__,
+        "marks this as a lost cause #{inspect(fire.coordinates)}"
+      )
 
-    events = [
-      {timestamp + 1, {FireStation, :recall_from_location, fire.coordinates}}
-    ]
+      events = [
+        {timestamp + 1, {FireStation, :recall_from_location, fire.coordinates}}
+      ]
 
-    {:reply, {:events, events}, State.delete_fire(state, fire)}
+      {:reply, {:events, events}, State.delete_fire(state, fire)}
+    else
+      {:reply, {:events, []}, state}
+    end
   end
 
   def handle_call({:fire, coordinates}, _, state) do
