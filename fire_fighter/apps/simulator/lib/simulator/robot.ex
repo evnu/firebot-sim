@@ -47,7 +47,9 @@ defmodule Simulator.Robot do
 
   @impl true
   def handle_call({:reset, simulation}, _, state = %State{}) do
-    {:reply, :ok, State.reset(state, simulation)}
+    state = State.reset(state, simulation)
+    telemetry(0, state)
+    {:reply, :ok, state}
   end
 
   def handle_call(:available?, _, state = %State{}) do

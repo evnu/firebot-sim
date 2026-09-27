@@ -18,7 +18,7 @@ defmodule Simulator.Robot.State do
   defstruct [:firestation_coordinates, :coordinates, :simulation, action: :waiting, soc: 100]
 
   def reset(state = %__MODULE__{}, simulation = %Replay.Simulation{}) do
-    %{state | simulation: simulation}
+    %{state | simulation: simulation, coordinates: state.firestation_coordinates, soc: 100, action: :waiting}
   end
 
   def available?(state = %__MODULE__{}) do
