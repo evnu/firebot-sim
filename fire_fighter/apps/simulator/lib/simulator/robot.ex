@@ -203,12 +203,11 @@ defmodule Simulator.Robot do
   end
 
   defp telemetry(timestamp, state) do
-    {:registered_name, name} = Process.info(self(), :registered_name)
     {coordinate_x, coordinate_y} = state.coordinates
 
     Replay.robot_telemetry(%{
       timestamp: timestamp,
-      robot_id: to_string(name),
+      robot_id: inspect(self()),
       soc: state.soc,
       coordinate_x: coordinate_x,
       coordinate_y: coordinate_y,

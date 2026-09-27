@@ -1,4 +1,4 @@
-defmodule Ui.WsHandler do
+defmodule Ui.SimulationWsHandler do
   @behaviour :cowboy_websocket
 
   @impl true

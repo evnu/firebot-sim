@@ -8,9 +8,8 @@ defmodule Ui.Application do
     dispatch = [
       {:_,
        [
-         # Route WebSocket traffic directly to our WebSocket handler
-         {"/socket", Ui.WsHandler, []},
-         # Route all other traffic through our Plug.Router
+         {"/socket", Ui.SimulationWsHandler, []},
+         {"/slow_replay", Ui.SlowReplayWsHandler, []},
          {:_, Plug.Cowboy.Handler, {Ui.Router, []}}
        ]}
     ]

@@ -17,7 +17,7 @@ defmodule Replay do
   Get all persisted simulations.
   """
   def get_simulations do
-    Repo.all(Simulations)
+    Repo.all(Simulation)
   end
 
   @doc """
