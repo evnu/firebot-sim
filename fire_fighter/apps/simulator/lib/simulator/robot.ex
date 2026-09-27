@@ -213,11 +213,8 @@ defmodule Simulator.Robot do
       soc: state.soc,
       coordinate_x: coordinate_x,
       coordinate_y: coordinate_y,
-      action: to_string(action_telemetry(state.action)),
+      action: inspect(state.action),
       simulation_id: state.simulation.id
     })
   end
-
-  defp action_telemetry({action, _}), do: action
-  defp action_telemetry(action) when is_atom(action), do: action
 end
