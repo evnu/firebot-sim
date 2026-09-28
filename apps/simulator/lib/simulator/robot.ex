@@ -161,12 +161,16 @@ defmodule Simulator.Robot do
       ) do
     telemetry(timestamp, state)
 
-    events =
-      [
-        {timestamp + 1, {self(), :extinguishing, coordinates}}
-      ]
+    if state.soc > 0 do
+      events =
+        [
+          {timestamp + 1, {self(), :extinguishing, coordinates}}
+        ]
 
-    {:reply, {:events, events}, State.discharge(state)}
+      {:reply, {:events, events}, State.discharge(state)}
+    else
+      {:reply, {:events, []}, %{state | action: :out_of_power}}
+    end
   end
 
   def handle_call({:extinguishing, _, _}, _, state = %State{}) do
