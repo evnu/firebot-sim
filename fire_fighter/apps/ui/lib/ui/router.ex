@@ -6,22 +6,17 @@ defmodule Ui.Router do
 
   # Match GET requests to root
   get "/" do
-    config = Simulator.Config.get()
-
     html_content = """
     <!DOCTYPE html>
     <html>
       <head><title>Robot Simulation</title></head>
       <body>
         <h1>Robot Fleet</h1>
-        Simulation Specification:
-        <ol>
-          <li>Number of robots: #{config.num_robots}</li>
-          <li>Grid size: #{inspect(config.grid_size)}</li>
-          <li>Firestation coordinations: #{inspect(config.firestation_coordinates)}</li>
-        </ol>
-        <a href="/simulate">Run simulation</a>
-        <a href="/replay">Replay simulation</a>
+        <ul>
+          <li><a href="/simulate">Run simulation</a></li>
+          <li><a href="/replay">Replay simulation</a></li>
+          <li><a href="/cleanup">Drop simulations</a></li>
+        </ul>
       </body>
     </html>
     """
@@ -31,14 +26,22 @@ defmodule Ui.Router do
     |> send_resp(200, html_content)
   end
 
-  # Match POST requests (e.g., API endpoint or form submission)
   get "/simulate" do
+    config = Simulator.Config.get()
+
     html_content = """
     <!DOCTYPE html>
     <html>
       <head><title>Simulation Runner</title></head>
       <body>
-        <h1>Run a Simulation</h1>
+        <h1>Simulation Runner</h1>
+        <h2>Simulation Specification</h2>
+        <ol>
+          <li>Number of robots: #{config.num_robots}</li>
+          <li>Grid size: #{inspect(config.grid_size)}</li>
+          <li>Firestation coordinations: #{inspect(config.firestation_coordinates)}</li>
+        </ol>
+        <h2>Control Simulation</h2>
         <button id="start">Start Simulation</button>
         <div id="log">Connecting...</div>
 
@@ -79,7 +82,7 @@ defmodule Ui.Router do
           };
 
           ws.onopen = function() {
-            logDiv.innerHTML = "Connected to Elixir WebSocket!";
+            logDiv.innerHTML = "";
           };
 
           startBtn.onclick = () => {
@@ -180,6 +183,24 @@ defmodule Ui.Router do
             ws.send("#{id}");
           };
         </script>
+      </body>
+    </html>
+    """
+
+    conn
+    |> put_resp_content_type("text/html")
+    |> send_resp(200, html_content)
+  end
+
+  get "/cleanup" do
+    Replay.delete_simulations!()
+
+    html_content = """
+    <!DOCTYPE html>
+    <html>
+      <head><title>Simulations Cleaned</title></head>
+      <body>
+        Simulations have been deleted.
       </body>
     </html>
     """

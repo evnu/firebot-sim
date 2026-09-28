@@ -30,4 +30,12 @@ defmodule Replay do
     RobotTelemetry.changeset(%RobotTelemetry{simulation_id: telemetry.simulation_id}, telemetry)
     |> Inserter.insert_async()
   end
+
+  @doc """
+  Drop all simulations.
+  """
+  def delete_simulations! do
+    Repo.delete_all(RobotTelemetry)
+    Repo.delete_all(Simulation)
+  end
 end
