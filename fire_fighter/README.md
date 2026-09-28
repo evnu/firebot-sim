@@ -1,7 +1,9 @@
 # FireFighter
 
 A fire-fighting autonomous robot simulation, with a simple data-gathering
-backend and a frontend to monitor the fleet of robots.
+backend and a frontend to monitor the fleet of robots. See
+[excalidraw](https://excalidraw.com/#token=r8vfHol3f7B43MGh6bous) for the
+planning of this simulation.
 
 ## Run the system
 
