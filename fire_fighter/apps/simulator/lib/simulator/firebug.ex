@@ -52,7 +52,7 @@ defmodule Simulator.Firebug do
 
   defp pick_next_fire(timestamp) do
     # FIXME do something cooler with random. Some proper arrival time. Also, needs a seed from the state.
-    timestamp + :rand.uniform(2000)
+    timestamp + :rand.uniform(1000)
   end
 
   defp random_fire(_state, timestamp) do
@@ -62,7 +62,7 @@ defmodule Simulator.Firebug do
       coordinates: {:rand.uniform(max_x), :rand.uniform(max_y)},
       started_at: timestamp,
       burns_until: timestamp + :rand.uniform(1000),
-      extinguished_within: :rand.uniform(50),
+      extinguished_within: :rand.uniform(200),
       # FIXME would be cool to require a larger number of fire fighters as well
       required_fire_fighters: 1
     }
