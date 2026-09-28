@@ -16,7 +16,8 @@ defmodule Simulator.DES do
   end
 
   def run_simulation(run_until) do
-    {:ok, simulation} = Replay.create_simulation()
+    config = Simulator.Config.get()
+    {:ok, simulation} = Replay.create_simulation(config)
 
     GenServer.call(
       Simulator.DES,

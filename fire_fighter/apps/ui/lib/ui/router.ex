@@ -101,7 +101,7 @@ defmodule Ui.Router do
     links =
       Replay.get_simulations()
       |> Enum.map(fn sim ->
-        "<li><a href='/replay/#{sim.id}'>#{sim.id}: #{sim.inserted_at}</a></li>"
+        "<li><a href='/replay/#{sim.id}'>#{sim.id}</a>: size = (#{sim.grid_x}, #{sim.grid_y}), #robots = #{sim.num_robots}, firestation at (#{sim.firestation_coordinate_x}, #{sim.firestation_coordinate_y}), inserted_at = #{sim.inserted_at}</li>"
       end)
       |> Enum.join("\n")
 

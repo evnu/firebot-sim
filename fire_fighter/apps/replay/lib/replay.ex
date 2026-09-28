@@ -10,8 +10,10 @@ defmodule Replay do
   @doc """
   Create and persist a new simulation.
   """
-  def create_simulation do
-    Repo.insert(%Simulation{})
+  def create_simulation(config) do
+    config
+    |> Simulation.from_config()
+    |> Repo.insert()
   end
 
   @doc """
