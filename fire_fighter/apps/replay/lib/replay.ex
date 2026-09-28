@@ -2,6 +2,7 @@ defmodule Replay do
   @moduledoc """
   API to create and access simulations.
   """
+  alias Replay.Inserter
   alias Replay.Repo
   alias Replay.RobotTelemetry
   alias Replay.Simulation
@@ -25,6 +26,6 @@ defmodule Replay do
   """
   def robot_telemetry(telemetry = %{}) do
     RobotTelemetry.changeset(%RobotTelemetry{simulation_id: telemetry.simulation_id}, telemetry)
-    |> Repo.insert()
+    |> Inserter.insert_async()
   end
 end

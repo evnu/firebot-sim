@@ -6,7 +6,8 @@ defmodule Replay.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      Replay.Repo
+      Replay.Repo,
+      Replay.Inserter
     ]
 
     opts = [strategy: :one_for_one, name: Replay.Supervisor]
