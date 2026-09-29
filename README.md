@@ -16,22 +16,16 @@ The monolith is split into three separate applications, which run in the same vi
 #### The `ui`
 
 `ui` is the system's frontend, which offers three simple interactions: start a
-simulation, replay it, or delete all simulation runs:
-
-![ui-index](screenshots/ui-index.png)
+simulation, replay it, or delete all simulation runs.
 
 The `/simulate` route is used to trigger a simulation with pre-defined
 parameters. The parameters are currently hard-coded in the software (see
 `Simulator.Config`). After triggering a simulation run, the events of the simulation
 are streamed through a websocket to the UI and displayed as soon as they arrive.
 
-![ui-simulate](screenshots/ui-simulate.png)
-
 To replay a simulation and display it "in real-time" with the `ui` dashboard, navigate to
 `/replay`. A list of robots is displayed at the top with their current location, state of charge,
 and action. Telemetry is also shown in a live log.
-
-![ui-replay](screenshots/ui-replay.png)
 
 #### The `simulator`
 
