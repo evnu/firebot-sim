@@ -7,11 +7,10 @@ defmodule Ui.Router do
   # Match GET requests to root
   get "/" do
     body = """
-    <ul>
-      <li><a href="/simulate">Run simulation</a></li>
-      <li><a href="/replay">Replay simulation</a></li>
-      <li><a href="/cleanup">Drop simulations</a></li>
-    </ul>
+    <p>
+      Use the navigation above to run simulations, access the replay
+      dashboard, or drop all simulation runs.
+    </p>
     """
 
     html_content = html_wrapper("Robot Simulation", body)
@@ -201,6 +200,9 @@ defmodule Ui.Router do
       <body>
       <header>
         <h1>#{title}</h1>
+          <a href="/simulate">Run a simulation</a>
+          <a href="/replay">Replay simulations</a>
+          <a href="/cleanup">Drop simulations</a>
       </header>
       #{body}
       </body>
