@@ -25,13 +25,13 @@ defmodule Replay.Inserter do
   end
 
   @impl true
-  def handle_call({:add_insert, changeset}, _, insertions) do
-    {:reply, :ok, [changeset | insertions]}
+  def handle_call({:add_insert, changeset}, _, changesets) do
+    {:reply, :ok, [changeset | changesets]}
   end
 
   @impl true
-  def handle_info(:write_batch, insertions) do
-    for changeset <- insertions do
+  def handle_info(:write_batch, changesets) do
+    for changeset <- changesets do
       Replay.Repo.insert!(changeset)
     end
 
