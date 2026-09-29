@@ -22,7 +22,7 @@ defmodule Ui.SimulationWsHandler do
   @impl true
   def websocket_handle({:text, "runSimulation"}, state) do
     start = DateTime.utc_now()
-    spawn(fn -> Simulator.DES.run_simulation(5000) end)
+    Simulator.run_simulation(5000)
     done = DateTime.utc_now()
     delta_us = DateTime.diff(done, start, :microsecond)
 
