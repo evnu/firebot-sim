@@ -7,7 +7,6 @@ defmodule Ui.Router do
   # Match GET requests to root
   get "/" do
     body = """
-    <h1>Robot Fleet</h1>
     <ul>
       <li><a href="/simulate">Run simulation</a></li>
       <li><a href="/replay">Replay simulation</a></li>
@@ -26,7 +25,6 @@ defmodule Ui.Router do
     config = Simulator.Config.get()
 
     body = """
-    <h1>Simulation Runner</h1>
     <h2>Simulation Specification</h2>
     <ol>
       <li>Number of robots: #{config.num_robots}</li>
@@ -85,7 +83,7 @@ defmodule Ui.Router do
     </script>
     """
 
-    html_content = html_wrapper("Simulation Run", body)
+    html_content = html_wrapper("Simulation Runner", body)
 
     conn
     |> put_resp_content_type("text/html")
@@ -100,18 +98,13 @@ defmodule Ui.Router do
       end)
       |> Enum.join("\n")
 
-    html_content = """
-    <!DOCTYPE html>
-    <html>
-      <head><title>Simulation Replay</title></head>
-      <body>
-        <h1>Simulations</h1>
-        <ul>
-        #{links}
-        </ul>
-      </body>
-    </html>
+    body = """
+    <ul>
+    #{links}
+    </ul>
     """
+
+    html_content = html_wrapper("Simulation Replays", body)
 
     conn
     |> put_resp_content_type("text/html")
@@ -206,6 +199,9 @@ defmodule Ui.Router do
         <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
       </head>
       <body>
+      <header>
+        <h1>#{title}</h1>
+      </header>
       #{body}
       </body>
     </html>
