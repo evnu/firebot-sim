@@ -4,7 +4,8 @@ defmodule Replay.Inserter do
   """
   use GenServer
 
-  @insert_interval 1000 # ms
+  # ms
+  @insert_interval 1000
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -20,7 +21,7 @@ defmodule Replay.Inserter do
   @impl true
   def init(_args) do
     :timer.send_interval(@insert_interval, :write_batch)
-    {:ok, %{}}
+    {:ok, []}
   end
 
   @impl true
@@ -33,6 +34,7 @@ defmodule Replay.Inserter do
     for changeset <- insertions do
       Replay.Repo.insert!(changeset)
     end
+
     {:noreply, []}
   end
 end
