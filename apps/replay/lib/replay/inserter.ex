@@ -31,9 +31,10 @@ defmodule Replay.Inserter do
 
   @impl true
   def handle_info(:write_batch, changesets) do
-    for changeset <- changesets do
-      Replay.Repo.insert!(changeset)
-    end
+    multi =
+      Enum.reduce(changesets, Ecto.Multi.new(), &Ecto.Multi.insert(&2, {:insert, make_ref()}, &1))
+
+    Replay.Repo.transact(multi)
 
     {:noreply, []}
   end
