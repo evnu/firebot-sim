@@ -17,19 +17,25 @@ defmodule Ui.SimulationWsHandler do
     {[{:text, :json.encode(report)}], state}
   end
 
+  def websocket_info({:done, start, done}, state) do
+    delta_us = DateTime.diff(done, start, :microsecond)
+
+    {[
+      {:text, "Finished simulation at #{done}"},
+      {:text, "Simulation took #{delta_us} microseconds"}
+    ], state}
+  end
+
   def websocket_info(_info, state), do: {:ok, state}
 
   @impl true
   def websocket_handle({:text, "runSimulation"}, state) do
     start = DateTime.utc_now()
-    Simulator.run_simulation(5000)
-    done = DateTime.utc_now()
-    delta_us = DateTime.diff(done, start, :microsecond)
-
-    {[
-       {:text, "Started simulation at #{start}"},
-       {:text, "Finished simulation at #{done}"},
-       {:text, "Simulation took #{delta_us} microseconds"}
-     ], state}
+    this = self()
+    spawn(fn ->
+      Simulator.run_simulation(5000)
+      send(this, {:done, start, DateTime.utc_now()})
+    end)
+    {[{:text, "Started simulation at #{start}"}], state}
   end
 end
